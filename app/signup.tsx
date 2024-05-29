@@ -36,9 +36,10 @@ const SignUpPage = () => {
     };
   });
 
+  const thisYear = new Date().getFullYear();
   const yearList = Array.from({ length: 100 }, (_, i) => ({
-    label: String(2024 - i),
-    value: 2024 - i,
+    label: String(thisYear - i),
+    value: thisYear - i,
   }));
 
   const [date, setDate] = useState("");
