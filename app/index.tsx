@@ -3,6 +3,7 @@ import React from "react";
 import Colors from "@/constants/Colors";
 import { defaultStyles } from "@/constants/Styles";
 import { useRouter } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 
 const StartScreen = () => {
   const logo = require("../assets/images/Medi_Call_Logo.png");
@@ -33,6 +34,7 @@ const StartScreen = () => {
           Sign Up
         </Text>
       </TouchableOpacity>
+      <StatusBar style="dark" />
     </View>
   );
 };
@@ -46,7 +48,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 16,
-    color: Colors.accent,
+    color: Colors.main,
     marginBottom: 200,
     textAlign: "center",
   },

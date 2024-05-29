@@ -8,70 +8,30 @@ import {
 import React, { useState } from "react";
 import { defaultStyles } from "@/constants/Styles";
 import Colors from "@/constants/Colors";
-import { Ionicons } from "@expo/vector-icons";
+import InputField from "@/components/InputField";
+import { useRouter } from "expo-router";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
 
-  const toggleShowPassword = () => {
-    setShowPassword(!showPassword);
-  };
+  const router = useRouter();
 
   return (
     <View style={defaultStyles.pageContainer}>
       <Text
-        style={[
-          defaultStyles.textSubHeading,
-          { marginLeft: "7.5%", marginBottom: 12, marginTop: 160 },
-        ]}
+        style={[defaultStyles.textSubHeading, styles.text, { marginTop: 160 }]}
       >
         Email atau Nomor Telepon
       </Text>
-      <TextInput
-        autoCapitalize="none"
-        style={[
-          styles.inputField,
-          defaultStyles.textExtraLight,
-          { marginBottom: 24 },
-        ]}
-        value={email}
-        onChangeText={setEmail}
-        placeholder="Masukkan email atau nomor telepon"
-      />
-      <Text
-        style={[
-          defaultStyles.textSubHeading,
-          { marginLeft: "7.5%", marginBottom: 12 },
-        ]}
-      >
-        Password
-      </Text>
-      <TextInput
-        style={[
-          styles.inputField,
-          defaultStyles.textExtraLight,
-          { marginBottom: 10 },
-        ]}
-        value={password}
-        onChangeText={setPassword}
-        placeholder="Masukkan password"
-        secureTextEntry={!showPassword}
-      />
+      <InputField type="email" value={email} onChangeText={setEmail} />
+      <Text style={[defaultStyles.textSubHeading, styles.text]}>Password</Text>
+      <InputField type="password" value={password} onChangeText={setPassword} />
 
       <TouchableOpacity
-        style={styles.showPassword}
-        onPress={toggleShowPassword}
+        activeOpacity={0.5}
+        onPress={() => router.replace("forgetpass")}
       >
-        <Ionicons
-          name={showPassword ? "eye-off-outline" : "eye-outline"}
-          size={22}
-          color={Colors.black}
-        />
-      </TouchableOpacity>
-
-      <TouchableOpacity activeOpacity={0.5}>
         <Text style={[defaultStyles.textHeading2, styles.forgotPassword]}>
           Lupa Password?
         </Text>
@@ -80,37 +40,36 @@ const LoginPage = () => {
       <TouchableOpacity
         style={[defaultStyles.button, styles.login]}
         activeOpacity={0.5}
+        onPress={() => router.navigate("home")}
       >
         <Text style={[defaultStyles.textSubHeading, styles.loginText]}>
           Log In
         </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.noAccount}
+        activeOpacity={0.5}
+        onPress={() => router.replace("signup")}
+      >
+        <Text style={defaultStyles.textExtraLight}>{"Belum punya akun? "}</Text>
+        <Text style={styles.signUpText}>Sign Up</Text>
       </TouchableOpacity>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  inputField: {
-    backgroundColor: Colors.accent,
-    width: "85%",
-    height: 45,
-    borderRadius: 13,
-    alignSelf: "center",
-    paddingHorizontal: 15,
-  },
-  showPassword: {
-    height: 45,
-    width: 30,
-    justifyContent: "center",
-    position: "absolute",
-    right: "10%",
-    top: 296,
-  },
   forgotPassword: {
     fontSize: 12,
     color: Colors.main,
     textAlign: "right",
     marginRight: "7.5%",
+    marginTop: 10,
+  },
+  text: {
+    marginLeft: "7.5%",
+    marginVertical: 12,
   },
   login: {
     backgroundColor: Colors.main,
@@ -120,6 +79,16 @@ const styles = StyleSheet.create({
   loginText: {
     color: Colors.white,
     fontSize: 20,
+  },
+  noAccount: {
+    flexDirection: "row",
+    alignSelf: "center",
+    marginTop: 8,
+  },
+  signUpText: {
+    ...defaultStyles.textHeading1,
+    color: Colors.main,
+    fontSize: 12,
   },
 });
 

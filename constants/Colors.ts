@@ -3,4 +3,5 @@ export default {
   accent: "#FFBAB9",
   white: "#FFFFFF",
   black: "#000000",
+  inactive: "#868484",
 }

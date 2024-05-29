@@ -82,7 +82,7 @@ const RootLayoutNav = () => {
       <Stack.Screen
         name="forgetpass"
         options={{
-          headerTitle: "Forgot Password",
+          headerTitle: "Set Password",
           headerTitleStyle: {
             ...defaultStyles.textHeading1,
             color: Colors.main,
