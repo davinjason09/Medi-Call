@@ -49,9 +49,8 @@ const SignUpPage = () => {
 
   return (
     <KeyboardAvoidingView
-      behavior={"padding"}
-      style={{ flex: 1 }}
-      keyboardVerticalOffset={10}
+      behavior="padding"
+      style={[defaultStyles.pageContainer]}
     >
       <ScrollView
         style={defaultStyles.pageContainer}
