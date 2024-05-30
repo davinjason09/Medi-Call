@@ -57,6 +57,7 @@ const InputField: React.FC<InputFieldProps> = ({
             size={24}
             color={Colors.black}
             onPress={toggleShowPassword}
+            style={{ transform: [{ rotateY: "180deg" }] }}
           />
         </TouchableOpacity>
       )}
@@ -78,7 +79,7 @@ const styles = StyleSheet.create({
     width: 45,
     justifyContent: "center",
     position: "absolute",
-    right: "7.5%",
+    right: "11%",
   },
 });
 
