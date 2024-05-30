@@ -4,6 +4,7 @@ import {
   StyleSheet,
   View,
   TouchableOpacity,
+  KeyboardAvoidingView,
 } from "react-native";
 import React, { useState } from "react";
 import { defaultStyles } from "@/constants/Styles";
@@ -64,66 +65,76 @@ const EditProfilePage = () => {
   };
 
   return (
-    <ScrollView style={defaultStyles.pageContainer}>
-      <UserAvatar image={image} onPress={pickImage} />
-      <Text style={[styles.text, { marginTop: 20 }]}>Nama Lengkap</Text>
-      <InputField type="text" />
-      <Text style={styles.text}>Email</Text>
-      <InputField type="email" />
-      <Text style={styles.text}>No. Telepon</Text>
-      <InputField type="phone" />
-      <Text style={styles.text}>Gender</Text>
-      <Picker
-        placeholder="Pilih Gender"
-        data={genderList}
-        labelField="label"
-        valueField="value"
-        value={gender}
-        onChange={setGender}
-      />
-      <Text style={styles.text}>Tanggal Lahir</Text>
-      <View style={styles.birth}>
-        <Picker
-          containerWidth={"30%"}
-          placeholder="Tanggal"
-          data={dateList}
-          labelField="label"
-          valueField="value"
-          value={date}
-          onChange={setDate}
-        />
-        <Picker
-          containerWidth={"30%"}
-          placeholder="Bulan"
-          data={monthList}
-          labelField="label"
-          valueField="value"
-          value={month}
-          onChange={setMonth}
-        />
-        <Picker
-          containerWidth={"30%"}
-          placeholder="Tahun"
-          data={yearList}
-          labelField="label"
-          valueField="value"
-          value={year}
-          onChange={setYear}
-        />
-      </View>
-      <Text style={styles.text}>NIK</Text>
-      <InputField type="number" />
-
-      <TouchableOpacity
-        style={[defaultStyles.button, styles.update]}
-        activeOpacity={0.5}
-        onPress={() => router.navigate("home")}
+    <KeyboardAvoidingView
+      behavior="padding"
+      style={[defaultStyles.pageContainer]}
+    >
+      <ScrollView
+        style={defaultStyles.pageContainer}
+        showsVerticalScrollIndicator={false}
+        keyboardDismissMode="interactive"
+        keyboardShouldPersistTaps="handled"
       >
-        <Text style={[defaultStyles.textSubHeading, styles.updateText]}>
-          Update Profile
-        </Text>
-      </TouchableOpacity>
-    </ScrollView>
+        <UserAvatar image={image} onPress={pickImage} />
+        <Text style={[styles.text, { marginTop: 20 }]}>Nama Lengkap</Text>
+        <InputField type="text" />
+        <Text style={styles.text}>Email</Text>
+        <InputField type="email" />
+        <Text style={styles.text}>No. Telepon</Text>
+        <InputField type="phone" />
+        <Text style={styles.text}>Gender</Text>
+        <Picker
+          placeholder="Pilih Gender"
+          data={genderList}
+          labelField="label"
+          valueField="value"
+          value={gender}
+          onChange={setGender}
+        />
+        <Text style={styles.text}>Tanggal Lahir</Text>
+        <View style={styles.birth}>
+          <Picker
+            containerWidth={"30%"}
+            placeholder="Tanggal"
+            data={dateList}
+            labelField="label"
+            valueField="value"
+            value={date}
+            onChange={setDate}
+          />
+          <Picker
+            containerWidth={"30%"}
+            placeholder="Bulan"
+            data={monthList}
+            labelField="label"
+            valueField="value"
+            value={month}
+            onChange={setMonth}
+          />
+          <Picker
+            containerWidth={"30%"}
+            placeholder="Tahun"
+            data={yearList}
+            labelField="label"
+            valueField="value"
+            value={year}
+            onChange={setYear}
+          />
+        </View>
+        <Text style={styles.text}>NIK</Text>
+        <InputField type="number" />
+
+        <TouchableOpacity
+          style={[defaultStyles.button, styles.update]}
+          activeOpacity={0.5}
+          onPress={() => router.navigate("home")}
+        >
+          <Text style={[defaultStyles.textSubHeading, styles.updateText]}>
+            Update Profile
+          </Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
