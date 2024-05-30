@@ -18,7 +18,7 @@ const ForgetPasswordPage = () => {
       <TouchableOpacity
         style={[defaultStyles.button, styles.save]}
         activeOpacity={0.5}
-        onPress={() => router.navigate("home")}
+        onPress={() => router.replace("login")}
       >
         <Text style={[defaultStyles.textSubHeading, styles.saveText]}>
           Simpan
