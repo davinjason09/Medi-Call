@@ -1,27 +1,34 @@
-import { StyleSheet, TouchableOpacity, Image, View } from "react-native";
+import {
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  View,
+  ImageStyle,
+} from "react-native";
 import React from "react";
-import { SimpleLineIcons } from "@expo/vector-icons";
 import Colors from "@/constants/Colors";
 
 interface UserAvatarProps {
   image: string | number;
+  isEditable?: boolean;
   onPress: () => void;
+  style?: ImageStyle;
 }
 
-const UserAvatar: React.FC<UserAvatarProps> = ({ image, onPress }) => {
+const UserAvatar = ({ image, onPress, isEditable, style }: UserAvatarProps) => {
+  const pencilIcon = require("@/assets/images/Edit-Avatar.png");
+
   return (
-    <TouchableOpacity onPress={onPress}>
+    <TouchableOpacity
+      onPress={isEditable ? onPress : undefined}
+      activeOpacity={isEditable ? 0.5 : 1}
+    >
       <Image
         source={typeof image === "number" ? image : { uri: image }}
-        style={styles.avatar}
+        style={[styles.avatar, style]}
       />
-      <View style={styles.pencil}>
-        <SimpleLineIcons
-          name="pencil"
-          size={16}
-          color={Colors.white}
-          style={{ transform: [{ rotateY: "180deg" }] }}
-        />
+      <View style={[styles.pencil, { display: isEditable ? "flex" : "none" }]}>
+        <Image source={pencilIcon} style={{ width: 14, height: 20 }} />
       </View>
     </TouchableOpacity>
   );
@@ -33,7 +40,6 @@ const styles = StyleSheet.create({
     height: 108,
     borderRadius: 54,
     alignSelf: "center",
-    marginTop: 20,
   },
   pencil: {
     backgroundColor: Colors.main,
