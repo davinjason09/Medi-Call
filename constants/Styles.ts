@@ -34,6 +34,11 @@ export const defaultStyles = StyleSheet.create({
     fontFamily: "Inter",
     fontWeight: "regular",
   },
+  textBodyBold: {
+    fontSize: 14,
+    fontFamily: "Inter",
+    fontWeight: "bold",
+  },
   textLight: {
     fontSize: 12,
     fontFamily: "Inter",
