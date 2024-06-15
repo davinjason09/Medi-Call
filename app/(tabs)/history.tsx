@@ -1,10 +1,11 @@
 import { View, Text } from "react-native";
-import React from "react";
+
+import { defaultStyles } from "@/constants/Styles";
 
 const HistoryPage = () => {
   return (
-    <View>
-      <Text>HistoryPage</Text>
+    <View style={defaultStyles.pageContainer}>
+      <Text>Nothing to see here... yet</Text>
     </View>
   );
 };
