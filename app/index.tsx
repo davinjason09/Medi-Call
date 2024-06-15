@@ -1,9 +1,9 @@
 import { Image, View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import React from "react";
+import { StatusBar } from "expo-status-bar";
+import { useRouter } from "expo-router";
+
 import Colors from "@/constants/Colors";
 import { defaultStyles } from "@/constants/Styles";
-import { useRouter } from "expo-router";
-import { StatusBar } from "expo-status-bar";
 
 const StartScreen = () => {
   const logo = require("../assets/images/Medi_Call_Logo.png");
