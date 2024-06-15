@@ -1,55 +1,43 @@
-import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-  TouchableOpacity,
-} from "react-native";
-import React, { useState } from "react";
-import { defaultStyles } from "@/constants/Styles";
-import Colors from "@/constants/Colors";
-import InputField from "@/components/InputField";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
 
+import LoginForm from "@/components/LoginForm";
+import Colors from "@/constants/Colors";
+import { defaultStyles } from "@/constants/Styles";
+import { LoginRequest } from "@/constants/Interfaces";
+import { loginUser } from "@/api/Services";
+import { saveToken } from "@/utils/Utilites";
+
 const LoginPage = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [data, setData] = useState<LoginRequest>();
+  const [isError, setIsError] = useState(false);
 
   const router = useRouter();
 
+  useEffect(() => {
+    if (data) {
+      loginUser(data)
+        .then((response) => {
+          console.log(response);
+          saveToken("token", response.token);
+          saveToken("date", new Date().toISOString());
+          router.replace("/(tabs)/home");
+        })
+        .catch((error) => {
+          console.log(error);
+          setIsError(true);
+        });
+    }
+  }, [data]);
+
   return (
     <View style={defaultStyles.pageContainer}>
-      <Text
-        style={[defaultStyles.textSubHeading, styles.text, { marginTop: 160 }]}
-      >
-        Email atau Nomor Telepon
-      </Text>
-      <InputField type="email" value={email} onChangeText={setEmail} />
-      <Text style={[defaultStyles.textSubHeading, styles.text]}>Password</Text>
-      <InputField type="password" value={password} onChangeText={setPassword} />
-
-      <TouchableOpacity
-        activeOpacity={0.5}
-        onPress={() => router.replace("forgetpass")}
-      >
-        <Text style={[defaultStyles.textHeading2, styles.forgotPassword]}>
-          Lupa Password?
-        </Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={[defaultStyles.button, styles.login]}
-        activeOpacity={0.5}
-        onPress={() => router.navigate("home")}
-      >
-        <Text style={[defaultStyles.textSubHeading, styles.loginText]}>
-          Log In
-        </Text>
-      </TouchableOpacity>
+      <LoginForm setFormData={setData} error={isError} setError={setIsError} />
 
       <TouchableOpacity
         style={styles.noAccount}
-        activeOpacity={0.5}
+        activeOpacity={0.7}
         onPress={() => router.replace("signup")}
       >
         <Text style={defaultStyles.textExtraLight}>{"Belum punya akun? "}</Text>

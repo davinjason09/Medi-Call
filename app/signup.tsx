@@ -1,56 +1,46 @@
 import {
-  View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
   KeyboardAvoidingView,
 } from "react-native";
-import React, { useState } from "react";
-import { defaultStyles } from "@/constants/Styles";
+import { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
-import InputField from "@/components/InputField";
+
+import SignInForm from "@/components/SignInForm";
 import Colors from "@/constants/Colors";
-import Picker from "@/components/Picker";
+import { registerUser, sendNewOTP } from "@/api/Services";
+import { RegisterRequest } from "@/constants/Interfaces";
+import { defaultStyles } from "@/constants/Styles";
+import { saveToken } from "@/utils/Utilites";
 
 const SignUpPage = () => {
   const router = useRouter();
 
-  const genderList = [
-    { label: "Pria", value: "Pria" },
-    { label: "Wanita", value: "Wanita" },
-  ];
+  const [data, setData] = useState<RegisterRequest>();
 
-  const dateList = Array.from({ length: 31 }, (_, i) => ({
-    label: String(i + 1),
-    value: i + 1,
-  }));
-
-  const monthList = Array.from({ length: 12 }, (_, i) => {
-    const d = new Date();
-    d.setMonth(i);
-
-    return {
-      label: d.toLocaleString("en-ca", { month: "short" }),
-      value: i + 1,
-    };
-  });
-
-  const thisYear = new Date().getFullYear();
-  const yearList = Array.from({ length: 100 }, (_, i) => ({
-    label: String(thisYear - i),
-    value: thisYear - i,
-  }));
-
-  const [date, setDate] = useState("");
-  const [month, setMonth] = useState("");
-  const [year, setYear] = useState("");
-  const [gender, setGender] = useState("");
+  useEffect(() => {
+    if (data) {
+      console.log(data);
+      registerUser(data)
+        .then((response) => {
+          console.log(response);
+          saveToken("token", response.token);
+          saveToken("date", new Date().toISOString());
+          sendNewOTP(response.token);
+          router.replace("otp");
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
+  }, [data]);
 
   return (
     <KeyboardAvoidingView
       behavior="padding"
-      style={[defaultStyles.pageContainer]}
+      style={defaultStyles.pageContainer}
     >
       <ScrollView
         style={defaultStyles.pageContainer}
@@ -58,81 +48,11 @@ const SignUpPage = () => {
         keyboardDismissMode="interactive"
         keyboardShouldPersistTaps="handled"
       >
-        <Text style={[styles.text, { marginTop: 20 }]}>Nama Lengkap</Text>
-        <InputField type="text" />
-        <Text style={styles.text}>Email</Text>
-        <InputField type="email" />
-        <Text style={styles.text}>No. Telepon</Text>
-        <InputField type="phone" />
-        <Text style={styles.text}>Gender</Text>
-        <Picker
-          placeholder="Pilih Gender"
-          data={genderList}
-          labelField="label"
-          valueField="value"
-          value={gender}
-          onChange={setGender}
-        />
-        <Text style={styles.text}>Tanggal Lahir</Text>
-        <View style={styles.birth}>
-          <Picker
-            containerWidth={"30%"}
-            placeholder="Tanggal"
-            data={dateList}
-            labelField="label"
-            valueField="value"
-            value={date}
-            onChange={setDate}
-          />
-          <Picker
-            containerWidth={"30%"}
-            placeholder="Bulan"
-            data={monthList}
-            labelField="label"
-            valueField="value"
-            value={month}
-            onChange={setMonth}
-          />
-          <Picker
-            containerWidth={"30%"}
-            placeholder="Tahun"
-            data={yearList}
-            labelField="label"
-            valueField="value"
-            value={year}
-            onChange={setYear}
-          />
-        </View>
-        <Text style={styles.text}>NIK</Text>
-        <InputField type="number" />
-        <Text style={styles.text}>Password</Text>
-        <InputField type="password" />
-        <Text style={styles.text}>Konfirmasi Password</Text>
-        <InputField type="password" />
-
-        <Text style={{ textAlign: "center", marginTop: 45 }}>
-          <Text style={styles.permitBlack}>
-            Dengan mengetuk Sign Up, Anda menyetujui semua{"\n"}
-          </Text>
-          <Text style={styles.permitRed}>Ketentuan Penggunaan</Text>
-          <Text style={styles.permitBlack}>{" dan "}</Text>
-          <Text style={styles.permitRed}>Privasi</Text>
-          <Text style={styles.permitBlack}>{" kami."}</Text>
-        </Text>
-
-        <TouchableOpacity
-          style={[defaultStyles.button, styles.signUp]}
-          activeOpacity={0.5}
-          onPress={() => router.navigate("home")}
-        >
-          <Text style={[defaultStyles.textSubHeading, styles.signUpText]}>
-            Log In
-          </Text>
-        </TouchableOpacity>
+        <SignInForm setFormData={setData} />
 
         <TouchableOpacity
           style={styles.haveAccount}
-          activeOpacity={0.5}
+          activeOpacity={0.7}
           onPress={() => router.replace("login")}
         >
           <Text style={defaultStyles.textExtraLight}>

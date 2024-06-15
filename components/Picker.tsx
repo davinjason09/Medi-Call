@@ -5,22 +5,24 @@ import Colors from "@/constants/Colors";
 import { defaultStyles } from "@/constants/Styles";
 
 interface PickerProps {
-  containerWidth?: DimensionValue;
-  placeholder?: string;
+  value: any;
   data: any[];
+  isEditable?: boolean;
+  placeholder?: string;
   labelField: string;
   valueField: string;
-  value: any;
+  containerWidth?: DimensionValue;
   onChange: (item: any) => void;
 }
 
 const Picker: React.FC<PickerProps> = ({
-  containerWidth = "85%",
-  placeholder,
+  value,
   data,
+  isEditable,
+  placeholder,
   labelField,
   valueField,
-  value,
+  containerWidth = "85%",
   onChange,
 }) => {
   return (
@@ -38,6 +40,7 @@ const Picker: React.FC<PickerProps> = ({
       value={value}
       onChange={(item) => onChange(item.value)}
       showsVerticalScrollIndicator={false}
+      disable={!isEditable}
     />
   );
 };

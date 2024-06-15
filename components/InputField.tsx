@@ -8,19 +8,30 @@ import {
 import React, { useState } from "react";
 import Colors from "@/constants/Colors";
 import { defaultStyles } from "@/constants/Styles";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 
 interface InputFieldProps {
+  autocapitalize?: "none" | "sentences" | "words" | "characters";
   type: "email" | "password" | "text" | "phone" | "number";
-  onChangeText?: (text: string) => void;
   value?: string;
+  editable?: boolean;
+  calendar?: boolean;
+  onPress?: () => void;
+  onFocus?: () => void;
+  onChangeText?: (text: string) => void;
 }
 
-const InputField: React.FC<InputFieldProps> = ({
-  type,
-  onChangeText,
-  value,
-}) => {
+const InputField = (params: InputFieldProps) => {
+  const {
+    autocapitalize,
+    type,
+    value,
+    editable,
+    calendar,
+    onPress,
+    onFocus,
+    onChangeText,
+  } = params;
   const isPassword = type === "password";
   const [showPassword, setShowPassword] = useState(false);
 
@@ -32,20 +43,25 @@ const InputField: React.FC<InputFieldProps> = ({
     email: "email-address",
     number: "numeric",
     text: "default",
-    password: "default ",
+    password: "default",
     phone: "phone-pad",
   };
 
   return (
     <View style={{ height: 45 }}>
-      <TextInput
-        style={[defaultStyles.textExtraLight, styles.inputField]}
-        autoCapitalize="none"
-        keyboardType={keyboard[type] as KeyboardType}
-        secureTextEntry={isPassword && !showPassword}
-        onChangeText={onChangeText}
-        value={value}
-      />
+      <TouchableOpacity activeOpacity={1} onPress={onPress}>
+        <TextInput
+          autoCapitalize={autocapitalize || "none"}
+          value={value}
+          editable={editable}
+          selectionColor={Colors.main}
+          style={[defaultStyles.textExtraLight, styles.inputField]}
+          keyboardType={keyboard[type] as KeyboardType}
+          secureTextEntry={isPassword && !showPassword}
+          onChangeText={onChangeText}
+          onFocus={onFocus}
+        />
+      </TouchableOpacity>
 
       {isPassword && (
         <TouchableOpacity
@@ -61,6 +77,16 @@ const InputField: React.FC<InputFieldProps> = ({
           />
         </TouchableOpacity>
       )}
+
+      {calendar && (
+        <TouchableOpacity style={styles.calendar} activeOpacity={1}>
+          <MaterialCommunityIcons
+            name="calendar-month-outline"
+            size={20}
+            color={Colors.black}
+          />
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
@@ -73,6 +99,7 @@ const styles = StyleSheet.create({
     borderRadius: 13,
     alignSelf: "center",
     paddingHorizontal: 12,
+    color: Colors.black,
   },
   showPassword: {
     height: 45,
@@ -80,6 +107,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     position: "absolute",
     right: "11%",
+  },
+  calendar: {
+    height: 45,
+    width: 45,
+    justifyContent: "center",
+    position: "absolute",
+    right: "5%",
   },
 });
 
