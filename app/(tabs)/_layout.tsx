@@ -1,12 +1,16 @@
-import React from "react";
 import { FontAwesome5, FontAwesome6, Fontisto } from "@expo/vector-icons";
-import { Tabs } from "expo-router";
+import { Tabs, useSegments } from "expo-router";
+
 import Colors from "@/constants/Colors";
 import { defaultStyles } from "@/constants/Styles";
 
 const TabLayout = () => {
+  const segments = useSegments();
+  console.log(segments);
+
   return (
     <Tabs
+      initialRouteName="home"
       screenOptions={{
         tabBarActiveTintColor: Colors.main,
         tabBarInactiveTintColor: Colors.inactive,
@@ -17,6 +21,11 @@ const TabLayout = () => {
           ...defaultStyles.textExtraLight,
           marginBottom: 15,
           marginTop: -15,
+        },
+        headerTitleAlign: "center",
+        headerTitleStyle: {
+          ...defaultStyles.textHeading1,
+          color: Colors.main,
         },
       }}
     >
@@ -40,9 +49,11 @@ const TabLayout = () => {
         }}
       />
       <Tabs.Screen
-        name="doctor"
+        name="service"
         options={{
-          title: "Dokter",
+          title: "Layanan",
+          headerTitle: "Layanan",
+          headerTransparent: true,
           tabBarIcon: ({ color }) => (
             <Fontisto name="doctor" color={color} size={24} />
           ),
@@ -51,7 +62,9 @@ const TabLayout = () => {
       <Tabs.Screen
         name="profile"
         options={{
-          title: "Profil",
+          title: "Profile",
+          headerTitle: "My Profile",
+          headerShadowVisible: false,
           tabBarIcon: ({ color }) => (
             <FontAwesome6 name="user" color={color} size={22} />
           ),
