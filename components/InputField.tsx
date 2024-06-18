@@ -5,10 +5,12 @@ import {
   TouchableOpacity,
   KeyboardType,
 } from "react-native";
-import React, { useState } from "react";
-import Colors from "@/constants/Colors";
-import { defaultStyles } from "@/constants/Styles";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { useState } from "react";
+
+import Colors from "@/constants/Colors";
+
+import { defaultStyles } from "@/constants/Styles";
 
 interface InputFieldProps {
   autocapitalize?: "none" | "sentences" | "words" | "characters";
@@ -17,22 +19,12 @@ interface InputFieldProps {
   editable?: boolean;
   calendar?: boolean;
   onPress?: () => void;
-  onFocus?: () => void;
+  removeError?: () => void;
   onChangeText?: (text: string) => void;
 }
 
-const InputField = (params: InputFieldProps) => {
-  const {
-    autocapitalize,
-    type,
-    value,
-    editable,
-    calendar,
-    onPress,
-    onFocus,
-    onChangeText,
-  } = params;
-  const isPassword = type === "password";
+const InputField = (props: InputFieldProps) => {
+  const isPassword = props.type === "password";
   const [showPassword, setShowPassword] = useState(false);
 
   const toggleShowPassword = () => {
@@ -49,17 +41,18 @@ const InputField = (params: InputFieldProps) => {
 
   return (
     <View style={{ height: 45 }}>
-      <TouchableOpacity activeOpacity={1} onPress={onPress}>
+      <TouchableOpacity activeOpacity={1} onPress={props.onPress}>
         <TextInput
-          autoCapitalize={autocapitalize || "none"}
-          value={value}
-          editable={editable}
+          autoCapitalize={props.autocapitalize || "none"}
+          value={props.value}
+          editable={props.editable}
           selectionColor={Colors.main}
           style={[defaultStyles.textExtraLight, styles.inputField]}
-          keyboardType={keyboard[type] as KeyboardType}
+          keyboardType={keyboard[props.type] as KeyboardType}
           secureTextEntry={isPassword && !showPassword}
-          onChangeText={onChangeText}
-          onFocus={onFocus}
+          onChangeText={props.onChangeText}
+          onFocus={props.removeError}
+          onChange={props.removeError}
         />
       </TouchableOpacity>
 
@@ -78,7 +71,7 @@ const InputField = (params: InputFieldProps) => {
         </TouchableOpacity>
       )}
 
-      {calendar && (
+      {props.calendar && (
         <TouchableOpacity style={styles.calendar} activeOpacity={1}>
           <MaterialCommunityIcons
             name="calendar-month-outline"
