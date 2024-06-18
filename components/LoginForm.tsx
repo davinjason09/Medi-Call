@@ -1,38 +1,62 @@
+import React, { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useRouter } from "expo-router";
 import { Formik } from "formik";
 import * as Yup from "yup";
 
 import InputField from "./InputField";
 import Colors from "@/constants/Colors";
-import { defaultStyles } from "@/constants/Styles";
-import { LoginRequest } from "@/constants/Interfaces";
-import { useRouter } from "expo-router";
+import Button from "./Button";
 
-interface LoginFormProps {
-  setFormData: (formData: LoginRequest) => void;
-  error?: boolean;
-  setError?: (error: boolean) => void;
-}
+import { LoginRequest, LoginResponse } from "@/constants/Interfaces";
+import { defaultStyles } from "@/constants/Styles";
+import { saveToken } from "@/utils/Utilites";
+import { loginUser } from "@/api/Services";
+
+const phoneRegex = /(08)([0-9]{8,13})/;
+const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
 
 const validationSchema = Yup.object().shape({
-  login: Yup.string().email("Email tidak valid").required("Email harus diisi"),
+  login: Yup.string()
+    .required("Email atau Nomor Telepon harus diisi")
+    .test("phoneOrEmail", "Email atau Nomor Telepon tidak valid", (value) => {
+      return phoneRegex.test(value) || emailRegex.test(value);
+    }),
   password: Yup.string().required("Password harus diisi"),
 });
 
-const LoginForm = (props: LoginFormProps) => {
+const LoginForm = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
   const router = useRouter();
+
+  const handleLogin = (values: LoginRequest) => {
+    setIsLoading(true);
+
+    setTimeout(() => {
+      loginUser(values)
+        .then((response: LoginResponse) => {
+          console.log(response);
+          saveToken("token", response.token);
+          saveToken("date", new Date().toISOString());
+          router.replace("/(tabs)/home");
+        })
+        .catch((error) => {
+          console.log(error);
+          setIsError(true);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }, 200);
+  };
 
   return (
     <View style={{ marginTop: 160 }}>
       <Formik
         validationSchema={validationSchema}
-        initialValues={{
-          login: "",
-          password: "",
-        }}
-        onSubmit={(values) => {
-          props.setFormData(values);
-        }}
+        initialValues={{ login: "", password: "" }}
+        onSubmit={(values) => handleLogin(values)}
       >
         {({ handleChange, handleSubmit, values, errors, touched }) => (
           <View>
@@ -42,7 +66,7 @@ const LoginForm = (props: LoginFormProps) => {
               type="email"
               onChangeText={handleChange("login")}
               value={values.login}
-              onFocus={() => props.setError!(false)}
+              removeError={() => setIsError(false)}
             />
             {errors.login && touched.login && (
               <Text style={styles.error}>{errors.login}</Text>
@@ -53,13 +77,13 @@ const LoginForm = (props: LoginFormProps) => {
               type="password"
               onChangeText={handleChange("password")}
               value={values.password}
-              onFocus={() => props.setError!(false)}
+              removeError={() => setIsError(false)}
             />
             {errors.password && touched.password && (
               <Text style={styles.error}>{errors.password}</Text>
             )}
 
-            {props.error && (
+            {isError && (
               <Text style={styles.error}>
                 Email, Nomor Telepon atau Password salah
               </Text>
@@ -67,18 +91,23 @@ const LoginForm = (props: LoginFormProps) => {
 
             <TouchableOpacity
               activeOpacity={0.7}
-              onPress={() => router.replace("forgetpass")}
+              onPress={() =>
+                router.replace({
+                  pathname: "forgetpass",
+                  params: { type: "reset" },
+                })
+              }
             >
               <Text style={styles.forgotPassword}>Lupa Password?</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.login}
-              activeOpacity={0.7}
+            <Button
+              title="Log In"
               onPress={() => handleSubmit()}
-            >
-              <Text style={styles.loginText}>Log In</Text>
-            </TouchableOpacity>
+              buttonStyle={styles.login}
+              textStyle={styles.loginText}
+              loading={isLoading}
+            />
           </View>
         )}
       </Formik>

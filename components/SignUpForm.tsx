@@ -1,20 +1,20 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { useState } from "react";
 import { Formik } from "formik";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import * as Yup from "yup";
 
-import { defaultStyles } from "@/constants/Styles";
 import InputField from "./InputField";
 import Picker from "./Picker";
-import { genderList } from "@/constants/Options";
-import { dateToISO, formatDate } from "@/utils/Utilites";
 import Colors from "@/constants/Colors";
-import { RegisterRequest } from "@/constants/Interfaces";
+import Button from "./Button";
 
-interface SignInFormProps {
-  setFormData: (formData: RegisterRequest) => void;
-}
+import { dateToISO, formatDate, saveToken } from "@/utils/Utilites";
+import { RegisterRequest } from "@/constants/Interfaces";
+import { defaultStyles } from "@/constants/Styles";
+import { genderList } from "@/constants/Options";
+import { registerUser, sendNewOTP } from "@/api/Services";
+import { useRouter } from "expo-router";
 
 const validationSchema = Yup.object().shape({
   name: Yup.string()
@@ -33,8 +33,7 @@ const validationSchema = Yup.object().shape({
   birthDate: Yup.date().required("Tanggal Lahir harus diisi"),
   NIK: Yup.string()
     .required("NIK harus diisi")
-    .min(16, ({ min }) => `NIK harus ${min} digit`)
-    .max(16, ({ max }) => `NIK maksimal ${max} digit`),
+    .length(16, "NIK harus 16 digit"),
   password: Yup.string()
     .required("Password harus diisi")
     .min(8, ({ min }) => `Password minimal ${min} karakter`),
@@ -43,8 +42,41 @@ const validationSchema = Yup.object().shape({
     .oneOf([Yup.ref("password")], "Password tidak sama"),
 });
 
-const SignInForm = (props: SignInFormProps) => {
+const SignUpForm = () => {
   const [open, setOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const router = useRouter();
+
+  const _handleSignUp = (values: any) => {
+    const formData: RegisterRequest = {
+      fullName: values.name,
+      email: values.email,
+      phoneNumber: values.phone,
+      gender: values.gender,
+      dateOfBirth: dateToISO(values.birthDate),
+      nik: values.NIK,
+      password: values.password,
+    };
+
+    setIsLoading(true);
+    setTimeout(() => {
+      registerUser(formData)
+        .then((response) => {
+          console.log(response);
+          saveToken("token", response.token);
+          saveToken("date", new Date().toISOString());
+          sendNewOTP(response.token);
+          router.replace("otp");
+        })
+        .catch((error) => {
+          console.log(error);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }, 200);
+  };
 
   return (
     <View style={defaultStyles.pageContainer}>
@@ -60,19 +92,7 @@ const SignInForm = (props: SignInFormProps) => {
           password: "",
           confirmPassword: "",
         }}
-        onSubmit={(values) => {
-          const formData: RegisterRequest = {
-            fullName: values.name,
-            email: values.email,
-            phoneNumber: values.phone,
-            gender: values.gender,
-            dateOfBirth: dateToISO(values.birthDate),
-            nik: values.NIK,
-            password: values.password,
-          };
-
-          props.setFormData(formData);
-        }}
+        onSubmit={(values) => _handleSignUp(values)}
       >
         {({
           handleChange,
@@ -195,13 +215,13 @@ const SignInForm = (props: SignInFormProps) => {
               <Text style={styles.permitBlack}>{" kami."}</Text>
             </Text>
 
-            <TouchableOpacity
-              style={styles.signUp}
-              activeOpacity={0.5}
+            <Button
+              title="Sign Up"
               onPress={() => handleSubmit()}
-            >
-              <Text style={styles.signUpText}>Sign Up</Text>
-            </TouchableOpacity>
+              buttonStyle={styles.signUp}
+              textStyle={styles.signUpText}
+              loading={isLoading}
+            />
           </View>
         )}
       </Formik>
@@ -209,7 +229,7 @@ const SignInForm = (props: SignInFormProps) => {
   );
 };
 
-export default SignInForm;
+export default SignUpForm;
 
 const styles = StyleSheet.create({
   text: {

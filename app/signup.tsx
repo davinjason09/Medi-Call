@@ -5,37 +5,15 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
 } from "react-native";
-import { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
 
-import SignInForm from "@/components/SignInForm";
+import SignUpForm from "@/components/SignUpForm";
 import Colors from "@/constants/Colors";
-import { registerUser, sendNewOTP } from "@/api/Services";
-import { RegisterRequest } from "@/constants/Interfaces";
+
 import { defaultStyles } from "@/constants/Styles";
-import { saveToken } from "@/utils/Utilites";
 
 const SignUpPage = () => {
   const router = useRouter();
-
-  const [data, setData] = useState<RegisterRequest>();
-
-  useEffect(() => {
-    if (data) {
-      console.log(data);
-      registerUser(data)
-        .then((response) => {
-          console.log(response);
-          saveToken("token", response.token);
-          saveToken("date", new Date().toISOString());
-          sendNewOTP(response.token);
-          router.replace("otp");
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    }
-  }, [data]);
 
   return (
     <KeyboardAvoidingView
@@ -48,7 +26,7 @@ const SignUpPage = () => {
         keyboardDismissMode="interactive"
         keyboardShouldPersistTaps="handled"
       >
-        <SignInForm setFormData={setData} />
+        <SignUpForm />
 
         <TouchableOpacity
           style={styles.haveAccount}
@@ -66,36 +44,6 @@ const SignUpPage = () => {
 };
 
 const styles = StyleSheet.create({
-  text: {
-    ...defaultStyles.textSubHeading,
-    marginLeft: "7.5%",
-    marginVertical: 12,
-  },
-  birth: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "85%",
-    alignSelf: "center",
-  },
-  permitBlack: {
-    ...defaultStyles.textBody,
-    fontSize: 12,
-  },
-  permitRed: {
-    ...defaultStyles.textBody,
-    fontSize: 12,
-    color: Colors.main,
-    textDecorationLine: "underline",
-  },
-  signUp: {
-    backgroundColor: Colors.main,
-    alignSelf: "center",
-    marginTop: 25,
-  },
-  signUpText: {
-    color: Colors.white,
-    fontSize: 20,
-  },
   haveAccount: {
     flexDirection: "row",
     alignSelf: "center",
