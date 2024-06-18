@@ -1,8 +1,10 @@
-import { Image, View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { Image, View, Text, StyleSheet } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";
 
+import Button from "@/components/Button";
 import Colors from "@/constants/Colors";
+
 import { defaultStyles } from "@/constants/Styles";
 
 const StartScreen = () => {
@@ -16,24 +18,18 @@ const StartScreen = () => {
         Solusi Sehat di Rumah
       </Text>
 
-      <TouchableOpacity
-        style={[defaultStyles.button, styles.login]}
-        activeOpacity={0.5}
+      <Button
+        title="Log In"
         onPress={() => router.push("login")}
-      >
-        <Text style={[defaultStyles.textSubHeading, styles.loginText]}>
-          Log In
-        </Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={[defaultStyles.button, styles.signup]}
-        activeOpacity={0.5}
+        buttonStyle={styles.login}
+        textStyle={styles.loginText}
+      />
+      <Button
+        title="Sign Up"
         onPress={() => router.push("signup")}
-      >
-        <Text style={[defaultStyles.textSubHeading, styles.signupText]}>
-          Sign Up
-        </Text>
-      </TouchableOpacity>
+        buttonStyle={styles.signup}
+        textStyle={styles.signupText}
+      />
       <StatusBar style="dark" />
     </View>
   );
