@@ -5,7 +5,7 @@ import {
   View,
   ImageStyle,
 } from "react-native";
-import React from "react";
+
 import Colors from "@/constants/Colors";
 
 interface UserAvatarProps {
@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
     height: 28,
     borderRadius: 14,
     right: "36%",
-    top: "75%",
+    top: "67.5%",
   },
 });
 
