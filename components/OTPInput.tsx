@@ -1,7 +1,9 @@
-import { View, Text, StyleSheet } from "react-native";
-import React, { RefObject, useState } from "react";
+import { View, StyleSheet } from "react-native";
+import { RefObject, useState } from "react";
 import { TextInput } from "react-native-gesture-handler";
+
 import Colors from "@/constants/Colors";
+
 import { defaultStyles } from "@/constants/Styles";
 
 interface OTPInputProps {
