@@ -4,10 +4,11 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
-import { Slot, useFocusEffect, useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { FontAwesome6, Ionicons } from "@expo/vector-icons";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FlashList } from "@shopify/flash-list";
 import * as Location from "expo-location";
 
@@ -19,8 +20,9 @@ import Colors from "@/constants/Colors";
 
 import { getDoctorData, getProfile } from "@/api/Services";
 import { defaultStyles } from "@/constants/Styles";
-import { DoctorList } from "@/constants/Interfaces";
-import { getToken } from "@/utils/Utilites";
+import { NearbyServicesRequest } from "@/constants/Interfaces";
+import { getToken, sortDoctors } from "@/utils/Utilites";
+import { useQuery } from "@tanstack/react-query";
 
 const HomePage = () => {
   const defaultImage = require("@/assets/images/Default_Avatar.png");
@@ -32,27 +34,29 @@ const HomePage = () => {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [image, setImage] = useState(defaultImage);
   const [name, setName] = useState("");
-  const [doctors, setDoctors] = useState<DoctorList[]>([]);
 
-  useFocusEffect(() => {
-    const fetchProfile = async () => {
-      const token = await getToken("token");
-      const response = await getProfile(token!);
+  useFocusEffect(
+    useCallback(() => {
+      const fetchProfile = async () => {
+        const token = await getToken("token");
+        const response = await getProfile(token!);
 
-      if (response) {
-        setName(response.fullName);
-        if (response.profilePicUrl) setImage(response.profilePicUrl);
-      }
-    };
+        if (response) {
+          setName(response.fullName);
+          if (response.profilePicUrl) setImage(response.profilePicUrl);
+        }
+      };
 
-    fetchProfile();
-  });
+      fetchProfile();
+    }, [])
+  );
 
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
         setErrorMsg("Permission to access location was denied");
+        console.log(errorMsg);
         return;
       }
 
@@ -61,28 +65,25 @@ const HomePage = () => {
     })();
   }, []);
 
-  useEffect(() => {
-    const fetchDoctorData = async () => {
-      if (!location) return <Slot />;
+  const body: NearbyServicesRequest = {
+    latitude: location?.coords.latitude ?? 0,
+    longitude: location?.coords.longitude ?? 0,
+    speciality: "ALL",
+    harga: "KURANGDARI50K",
+    jarak: "KURANGDARI10KM",
+  };
 
+  const { isLoading, data } = useQuery({
+    queryKey: ["doctor", body],
+    queryFn: async () => {
       const token = await getToken("token");
-      const body = {
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-        speciality: "Spesialis Kulit dan Kelamin",
-        harga: "LEBIHDARI50KKURANGDARI100K",
-        jarak: "KURANGDARI10KM",
-      };
-
       const response = await getDoctorData(token!, body);
 
-      if (response) {
-        setDoctors(response.doctors);
-      }
-    };
+      sortDoctors(response.doctors, location);
 
-    fetchDoctorData();
-  }, [location]);
+      return response.doctors.slice(0, 5);
+    },
+  });
 
   return (
     <View style={defaultStyles.pageContainer}>
@@ -110,9 +111,12 @@ const HomePage = () => {
           </View>
         </View>
       </View>
-      <View style={[styles.separator, { width: "100%" }]} />
+      <View style={[defaultStyles.separator, { width: "100%" }]} />
 
-      <SearchBar />
+      <SearchBar
+        isEditable={false}
+        onPress={() => router.replace("(tabs)/service")}
+      />
 
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.titleRow}>
@@ -121,7 +125,7 @@ const HomePage = () => {
           </Text>
           <TouchableOpacity
             activeOpacity={0.5}
-            onPress={() => router.replace("(tabs)/services")}
+            onPress={() => router.replace("(tabs)/service")}
           >
             <Text style={styles.seeAll}>Lihat Semua</Text>
           </TouchableOpacity>
@@ -140,7 +144,7 @@ const HomePage = () => {
           </View>
         </View>
 
-        <View style={styles.splitter} />
+        <View style={defaultStyles.splitter} />
 
         <View style={styles.titleRow}>
           <Text style={[defaultStyles.textSubHeading, { fontSize: 12 }]}>
@@ -150,7 +154,7 @@ const HomePage = () => {
             activeOpacity={0.5}
             onPress={() =>
               router.replace({
-                pathname: "(tabs)/services",
+                pathname: "(tabs)/service",
                 params: { query: "doctor" },
               })
             }
@@ -159,13 +163,24 @@ const HomePage = () => {
           </TouchableOpacity>
         </View>
 
-        <FlashList
-          data={doctors.slice(0, 5)}
-          keyExtractor={(item) => item._id.toString()}
-          renderItem={({ item }) => <DoctorCard {...item} />}
-          estimatedItemSize={5}
-          ItemSeparatorComponent={() => <View style={styles.separator} />}
-        />
+        <View style={styles.doctorRow}>
+          {isLoading && (
+            <ActivityIndicator
+              size="large"
+              color={Colors.main}
+              style={defaultStyles.loading}
+            />
+          )}
+          <FlashList
+            data={data ?? []}
+            keyExtractor={(item) => item._id.toString()}
+            renderItem={({ item }) => <DoctorCard {...item} />}
+            estimatedItemSize={5}
+            ItemSeparatorComponent={() => (
+              <View style={defaultStyles.separator} />
+            )}
+          />
+        </View>
       </ScrollView>
     </View>
   );
@@ -219,16 +234,10 @@ const styles = StyleSheet.create({
     gap: 48,
     marginTop: 16,
   },
-  splitter: {
-    height: 10,
-    marginTop: 16,
-    backgroundColor: Colors.accent,
-  },
-  separator: {
-    borderWidth: 0.5,
-    borderColor: "rgba(134, 132, 132, 0.2)",
-    width: "85%",
-    alignSelf: "center",
+  doctorRow: {
+    width: "100%",
+    minHeight: 250,
+    justifyContent: "center",
   },
 });
 

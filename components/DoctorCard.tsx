@@ -1,35 +1,15 @@
 import { StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
 import { useEffect, useState } from "react";
-import { defaultStyles } from "@/constants/Styles";
-import Colors from "@/constants/Colors";
-import { DoctorList } from "@/constants/Interfaces";
 import * as Location from "expo-location";
+
+import Colors from "@/constants/Colors";
+
+import { calculateDistance } from "@/utils/Utilites";
+import { defaultStyles } from "@/constants/Styles";
+import { DoctorList } from "@/constants/Interfaces";
 
 const DoctorCard = (props: DoctorList) => {
   const formatBill = new Intl.NumberFormat("id-ID").format(props.pricePerHour);
-  const calculateDistance = (
-    lat1: number,
-    lon1: number,
-    lat2: number,
-    lon2: number
-  ) => {
-    const toRadians = (degrees: number) => degrees * (Math.PI / 180);
-
-    const R = 6371;
-    const dLat = toRadians(lat2 - lat1);
-    const dLon = toRadians(lon2 - lon1);
-
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(toRadians(lat1)) *
-        Math.cos(toRadians(lat2)) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
-
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-    return R * c;
-  };
 
   const [location, setLocation] = useState<Location.LocationObject | null>(
     null
@@ -41,6 +21,7 @@ const DoctorCard = (props: DoctorList) => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
         setErrorMsg("Permission to access location was denied");
+        console.log(errorMsg);
         return;
       }
 

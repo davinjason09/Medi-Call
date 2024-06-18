@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   useWindowDimensions,
   Keyboard,
+  ActivityIndicator,
 } from "react-native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
@@ -29,7 +30,9 @@ import Picker from "@/components/Picker";
 import { DoctorList, NearbyServicesRequest } from "@/constants/Interfaces";
 import { defaultStyles } from "@/constants/Styles";
 import { getDoctorData } from "@/api/Services";
-import { getToken } from "@/utils/Utilites";
+import { calculateDistance, getToken, sortDoctors } from "@/utils/Utilites";
+import { useQuery } from "@tanstack/react-query";
+import NoDoctors from "@/components/NoDoctors";
 
 const ServicesPage = () => {
   const { width } = useWindowDimensions();
@@ -41,20 +44,24 @@ const ServicesPage = () => {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [queryList, setQueryList] = useState<string[]>([]);
-  const [filterLocation, setFilterLocation] = useState<string>();
-  const [filterSpecialty, setFilterSpecialty] = useState<string>();
-  const [filterPrice, setFilterPrice] = useState<string>();
+  const [filterLocation, setFilterLocation] = useState<string>("TERDEKAT");
+  const [filterSpecialty, setFilterSpecialty] = useState<string>("ALL");
+  const [filterPrice, setFilterPrice] = useState<string>("KURANGDARI50K");
   const [doctors, setDoctors] = useState<DoctorList[]>([]);
 
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const padding = useMemo(() => width * 0.075, [width]);
   const snapPoints = useMemo(() => ["75%"], []);
+  const body: NearbyServicesRequest = {
+    latitude: location?.coords.latitude ?? 0,
+    longitude: location?.coords.longitude ?? 0,
+    speciality: filterSpecialty!,
+    harga: filterPrice!,
+    jarak: filterLocation!,
+  };
 
   useEffect(() => {
     setQueryList(query ? query.split(",") : ["Dokter"]);
-    setFilterLocation("TERDEKAT");
-    setFilterSpecialty("ALL");
-    setFilterPrice("KURANGDARI50K");
   }, [query]);
 
   useEffect(() => {
@@ -62,6 +69,7 @@ const ServicesPage = () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
         setErrorMsg("Permission to access location was denied");
+        console.log(errorMsg);
         return;
       }
 
@@ -76,44 +84,26 @@ const ServicesPage = () => {
     setIsOpen(true);
   }, []);
 
-  const handleSheetChanges = useCallback((index: number) => {
-    console.log("handleSheetChanges", index);
-  }, []);
-
   const handleQueryChange = (updatedQuery: string[]) => {
     setQueryList(updatedQuery);
   };
 
-  const fetchDoctorData = async () => {
-    if (!location) return;
+  const { isLoading, data, refetch } = useQuery({
+    refetchOnWindowFocus: false,
+    queryKey: ["doctor", body],
+    queryFn: async () => {
+      const token = await getToken("token");
+      const response = await getDoctorData(token!, body);
 
-    const token = await getToken("token");
-    const body = {
-      latitude: location.coords.latitude,
-      longitude: location.coords.longitude,
-      speciality: filterSpecialty,
-      harga: filterPrice,
-      jarak: filterLocation,
-    } as NearbyServicesRequest;
+      sortDoctors(response.doctors, location);
 
-    console.log(body);
-
-    const response = await getDoctorData(token!, body);
-
-    if (response) {
-      setDoctors(response.doctors);
-    }
-  };
-
-  useEffect(() => {
-    if (!location) return;
-
-    fetchDoctorData();
-  }, [location]);
+      return response.doctors;
+    },
+  });
 
   const handleFilter = async () => {
     bottomSheetRef.current?.dismiss();
-    fetchDoctorData();
+    refetch();
   };
 
   const backDrop: ViewStyle = {
@@ -144,28 +134,42 @@ const ServicesPage = () => {
         showsHorizontalScrollIndicator={false}
         estimatedItemSize={6}
         ItemSeparatorComponent={() => <View style={{ width: 5 }} />}
-        snapToStart={true}
+        alwaysBounceHorizontal={false}
         bounces={false}
         scrollEventThrottle={100}
-        snapToOffsets={[0, 0.5, 1]}
+        snapToOffsets={[0, 1]}
         ListHeaderComponent={() => <View style={{ width: padding }} />}
         ListFooterComponent={() => <View style={{ width: padding }} />}
       />
 
-      <Text style={styles.nearest}>Daftar Dokter</Text>
-      <FlashList
-        data={doctors}
-        renderItem={({ item }) => <DoctorCard {...item} />}
-        keyExtractor={(item) => item.name}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
-        estimatedItemSize={50}
-      />
+      <View style={styles.doctorRow}>
+        <Text style={styles.nearest}>Daftar Dokter</Text>
+
+        {isLoading && (
+          <ActivityIndicator
+            size="large"
+            color={Colors.main}
+            style={defaultStyles.loading}
+          />
+        )}
+        <FlashList
+          data={data}
+          renderItem={({ item }) => <DoctorCard {...item} />}
+          keyExtractor={(item) => item.name}
+          ItemSeparatorComponent={() => (
+            <View style={defaultStyles.separator} />
+          )}
+          ListEmptyComponent={() => !isLoading && <NoDoctors />}
+          estimatedItemSize={50}
+          showsVerticalScrollIndicator={false}
+          bounces={false}
+        />
+      </View>
 
       <BottomSheetModal
         ref={bottomSheetRef}
         snapPoints={snapPoints}
         index={0}
-        onChange={handleSheetChanges}
         onDismiss={() => setIsOpen(false)}
         backgroundStyle={{ borderRadius: 24 }}
         animationConfigs={{ duration: 250 }}
@@ -218,7 +222,7 @@ const ServicesPage = () => {
                 placeholder="Pilih Rentang Harga"
                 labelField="name"
                 valueField="value"
-                onChange={setFilterSpecialty}
+                onChange={setFilterPrice}
               />
             </View>
           </View>
@@ -245,14 +249,13 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginLeft: "7.5%",
   },
-  separator: {
-    borderWidth: 0.5,
-    borderColor: "rgba(134, 132, 132, 0.2)",
-    width: "85%",
-    alignSelf: "center",
-  },
   contentContainer: {
     flex: 1,
+  },
+  doctorRow: {
+    width: "100%",
+    minHeight: 500,
+    justifyContent: "center",
   },
   section: {
     ...defaultStyles.textHeading2,
