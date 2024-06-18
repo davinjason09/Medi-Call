@@ -1,26 +1,24 @@
 import {
   View,
-  Text,
   StyleSheet,
   TextInput,
   ViewStyle,
   TouchableOpacity,
 } from "react-native";
-import React from "react";
-import Colors from "@/constants/Colors";
 import { FontAwesome6 } from "@expo/vector-icons";
+
+import Colors from "@/constants/Colors";
+
 import { defaultStyles } from "@/constants/Styles";
-import { useRouter } from "expo-router";
 
 interface SearchBarProps {
   style?: ViewStyle;
+  isEditable?: boolean;
   onPress?: () => void;
 }
 
-const SearchBar = (params: SearchBarProps) => {
-  const { style, onPress } = params;
-
-  const router = useRouter();
+const SearchBar = (props: SearchBarProps) => {
+  const { style, onPress } = props;
 
   return (
     <View style={[styles.container, style]}>
@@ -28,6 +26,8 @@ const SearchBar = (params: SearchBarProps) => {
       <TextInput
         style={styles.textInput}
         placeholder="Cari dokter, perawat, layanan lainnya"
+        selectionColor={Colors.main}
+        editable={props.isEditable}
       />
       <TouchableOpacity
         style={styles.filter}
