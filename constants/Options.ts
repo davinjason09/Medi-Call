@@ -44,17 +44,14 @@ export const servicesList = [
 
 export const filterByLocation = [
   {
-    id: 1,
     name: "Terdekat",
     value: "TERDEKAT"
   },
   {
-    id: 2,
     name: "< 10 km",
     value: "KURANGDARI10KM"
   },
   {
-    id: 3,
     name: "> 10 km",
     value: "LEBIHDARI10KM"
   }
@@ -62,67 +59,54 @@ export const filterByLocation = [
 
 export const filterBySpeciality = [
   {
-    id: 1,
     name: "Semua",
     value: "ALL"
   },
   {
-    id: 2,
     name: "Umum",
     value: "Umum"
   },
   {
-    id: 3,
     name: "Spesialis Penyakit dalam",
     value: "Spesialis Penyakit dalam"
   },
   {
-    id: 4,
     name: "Spesialis Anak",
     value: "Spesialis Anak"
   },
   {
-    id: 5,
     name: "Spesialis Saraf",
     value: "Spesialis Saraf"
   },
   {
-    id: 6,
-    name: "Spesialis - Kandungan dan Ginekologi",
+    name: "Spesialis Kandungan dan Ginekologi",
     value: "Spesialis - Kandungan dan Ginekologi"
   },
   {
-    id: 7,
     name: "Spesialis Bedah",
     value: "Spesialis Bedah"
   },
   {
-    id: 8,
     name: "Spesialis Kulit dan Kelamin",
     value: "Spesialis Kulit dan Kelamin"
   },
   {
-    id: 9,
     name: "Spesialis THT",
     value: "Spesialis THT"
   },
   {
-    id: 10,
     name: "Spesialis Mata",
     value: "Spesialis Mata"
   },
   {
-    id: 11,
     name: "Psikiater",
     value: "Psikiater"
   },
   {
-    id: 12,
     name: "Dokter Gigi",
     value: "Dokter Gigi"
   },
   {
-    id: 13,
     name: "Spesialis Kedokteran Forensik dan Rehabilitasi",
     value: "Spesialis Kedokteran Forensik dan Rehabilitasi"
   }
@@ -130,18 +114,15 @@ export const filterBySpeciality = [
 
 export const filterByPrice = [
   {
-    id: 1,
     name: "< Rp50.000",
     value: "KURANGDARI50K"
   },
   {
-    id: 2,
-    name: "> Rp50.000",
-    value: "LEBIHDARI50K"
-  },
-  {
-    id: 3,
     name: "Rp50.000-Rp100.000",
     value: "LEBIHDARI50KKURANGDARI100K"
+  },
+  {
+    name: "> Rp50.000",
+    value: "LEBIHDARI50K"
   }
 ]

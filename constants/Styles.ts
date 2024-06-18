@@ -14,6 +14,25 @@ export const defaultStyles = StyleSheet.create({
     alignItems: "center",
     marginVertical: 4,
   },
+  splitter: {
+    height: 10,
+    marginTop: 16,
+    backgroundColor: Colors.accent,
+  },
+  loading: {
+    position: "absolute",
+    alignSelf: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
+    width: "100%",
+    height: "100%",
+    zIndex: 1,
+  },
+  separator: {
+    borderWidth: 0.5,
+    borderColor: "rgba(134, 132, 132, 0.2)",
+    width: "85%",
+    alignSelf: "center",
+  },
   textHeading1: {
     fontSize: 24,
     fontFamily: "Inter",

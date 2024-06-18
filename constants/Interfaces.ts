@@ -28,7 +28,7 @@ export interface UserProfile {
   fullName: string;
   email: string;
   phoneNumber: string;
-  gender: 'male' | 'female' | 'other';
+  gender: string;
   dateOfBirth: string;
   nik: string;
   profilePicUrl?: string;
@@ -36,9 +36,9 @@ export interface UserProfile {
 
 export interface UpdateProfileRequest {
   fullName: string;
-  email: string;
+  // email: string;
   phoneNumber: string;
-  gender: 'male' | 'female' | 'other';
+  gender: string;
   dateOfBirth: string;
   nik: string;
 }
@@ -48,10 +48,15 @@ export interface UpdateProfileResponse {
   fullName: string;
   email: string;
   phoneNumber: string;
-  gender: 'male' | 'female' | 'other';
+  gender: string;
   dateOfBirth: string;
   nik: string;
   __v: number;
+}
+
+export interface UpdateProfilePictureRequest {
+  filename: string;
+  image: string;
 }
 
 export interface UpdateProfilePictureResponse {
